@@ -39,7 +39,7 @@ namespace Bandidos_kliens_app
             dataGridView1.AutoGenerateColumns = false;
             dataGridView1.AllowUserToAddRows = false;
             dataGridView1.EditMode = DataGridViewEditMode.EditOnEnter;
-            dataGridView1.ReadOnly = false; // Biztosítjuk, hogy a DataGridView szerkeszthető
+            dataGridView1.ReadOnly = false;
             dataGridView1.Columns.Clear();
 
             dataGridView1.Columns.Add(new DataGridViewTextBoxColumn
@@ -100,16 +100,17 @@ namespace Bandidos_kliens_app
 
                     productList.Add(new ProductData
                     {
-                        SKU = product.Sku,
-                        Name = product.ProductName,
+                        SKU = product.Sku ?? string.Empty,
+                        Name = product.ProductName ?? string.Empty,
                         QuantityOnHand = qty,
                         ProductBvin = product.Bvin,
                         OriginalQuantity = qty
                     });
                 }
 
+                // Másolat készítése az eredeti listáról a szűréshez
+                originalProductList = new List<ProductData>(productList);
                 bindingSource1.DataSource = productList;
-                ConfigureDataGridView();
             }
             catch (Exception ex)
             {
@@ -124,7 +125,7 @@ namespace Bandidos_kliens_app
                 var proxy = CreateApiClient();
                 int updatedCount = 0;
 
-                foreach (ProductData product in productList)
+                foreach (ProductData product in originalProductList)
                 {
                     if (product.QuantityOnHand != product.OriginalQuantity)
                     {
@@ -157,8 +158,10 @@ namespace Bandidos_kliens_app
                 }
 
                 MessageBox.Show($"Készletfrissítés sikeres! {updatedCount} termék frissítve.");
+                bindingSource1.DataSource = null;
+                bindingSource1.DataSource = productList;
                 bindingSource1.ResetBindings(false);
-                ConfigureDataGridView();
+                dataGridView1.Refresh();
             }
             catch (Exception ex)
             {
@@ -179,16 +182,16 @@ namespace Bandidos_kliens_app
                 }
                 else
                 {
-                    // LINQ-alapú szűrés, kis- és nagybetű-érzéketlen, IndexOf használatával
                     productList = originalProductList
-                        .Where(p => p.SKU.IndexOf(filterText, StringComparison.OrdinalIgnoreCase) >= 0 ||
-                                    p.Name.IndexOf(filterText, StringComparison.OrdinalIgnoreCase) >= 0)
+                        .Where(p => (p.SKU ?? string.Empty).IndexOf(filterText, StringComparison.OrdinalIgnoreCase) >= 0 ||
+                                    (p.Name ?? string.Empty).IndexOf(filterText, StringComparison.OrdinalIgnoreCase) >= 0)
                         .ToList();
                 }
 
-                bindingSource1.DataSource = null; // Először leválasztjuk az adatforrást
-                bindingSource1.DataSource = productList; // Újrakötjük a szűrt listát
+                bindingSource1.DataSource = null;
+                bindingSource1.DataSource = productList;
                 bindingSource1.ResetBindings(false);
+                dataGridView1.Refresh();
             }
             catch (Exception ex)
             {
