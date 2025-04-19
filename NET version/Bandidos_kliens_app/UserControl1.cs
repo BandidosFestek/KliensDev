@@ -42,27 +42,48 @@ namespace Bandidos_kliens_app
             dataGridView1.ReadOnly = false;
             dataGridView1.Columns.Clear();
 
-            dataGridView1.Columns.Add(new DataGridViewTextBoxColumn
+            // Kiválasztósor szélességének csökkentése
+            dataGridView1.RowHeadersWidth = 20; // Alapértelmezett helyett 25 pixelre csökkentve
+
+            // Termékkód oszlop (fix szélesség)
+            var skuColumn = new DataGridViewTextBoxColumn
             {
                 DataPropertyName = "SKU",
                 HeaderText = "Termékkód",
                 Name = "SKU",
-                ReadOnly = true
-            });
-            dataGridView1.Columns.Add(new DataGridViewTextBoxColumn
+                ReadOnly = true,
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
+                Width = 80
+            };
+            dataGridView1.Columns.Add(skuColumn);
+
+            // Terméknév oszlop (kitölti a maradék helyet)
+            var nameColumn = new DataGridViewTextBoxColumn
             {
                 DataPropertyName = "Name",
                 HeaderText = "Terméknév",
                 Name = "Name",
-                ReadOnly = true
-            });
-            dataGridView1.Columns.Add(new DataGridViewTextBoxColumn
+                ReadOnly = true,
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                Width = 90
+            };
+            dataGridView1.Columns.Add(nameColumn);
+
+            // Készlet oszlop (fix szélesség)
+            var quantityColumn = new DataGridViewTextBoxColumn
             {
                 DataPropertyName = "QuantityOnHand",
                 HeaderText = "Készlet",
                 Name = "QuantityOnHand",
-                ReadOnly = false
-            });
+                ReadOnly = false,
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                Width = 10
+            };
+            dataGridView1.Columns.Add(quantityColumn);
+
+            // AutoSizeColumnsMode beállítása
+            dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
+
         }
 
         private static Api CreateApiClient()
